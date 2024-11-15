@@ -3,13 +3,15 @@ from django.urls import path
 from habits.apps import HabitsConfig
 from habits.views import (HabitListAPIView, HabitRetrieveAPIView,
                           HabitCreateAPIView, HabitUpdateAPIView,
-                          HabitDestroyAPIView)
+                          HabitDestroyAPIView, HabitPublishedListAPIView)
 
 app_name = HabitsConfig.name
 
 urlpatterns = [
     # вывод списка привычек
     path("", HabitListAPIView.as_view(), name="habits-list"),
+    # вывод списка публичных привычек
+    path("published/", HabitPublishedListAPIView.as_view(), name="habits-published"),
     # просмотр одной привычки
     path("<int:pk>/", HabitRetrieveAPIView.as_view(), name="habits-retrieve"),
     # создание привычки

@@ -10,6 +10,12 @@ class HabitListAPIView(ListAPIView):
     queryset = Habit.objects.all()
 
 
+class HabitPublishedListAPIView(ListAPIView):
+    """Контроллер вывода списка публичных привычек"""
+    serializer_class = HabitSerializer
+    queryset = Habit.objects.filter(is_published=True)
+
+
 class HabitCreateAPIView(CreateAPIView):
     """Контроллер создания новой привычки"""
     serializer_class = HabitSerializer
