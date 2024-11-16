@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 from config.settings import AUTH_USER_MODEL, NULLABLE
 
@@ -14,7 +13,7 @@ class Habit(models.Model):
         **NULLABLE,
     )
     habit_time = models.TimeField(
-        default=timezone.now().time(),
+        auto_now=True,
         verbose_name='Время',
         help_text='Время, когда необходимо выполнять привычку',
     )
