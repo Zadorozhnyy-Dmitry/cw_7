@@ -1,7 +1,7 @@
 from django.db import models
 
 from config.settings import AUTH_USER_MODEL, NULLABLE
-from habits.validators import HabitValidate
+from habits.validators import HabitModelValidate
 
 
 class Habit(models.Model):
@@ -11,10 +11,8 @@ class Habit(models.Model):
         max_length=150,
         verbose_name='Место',
         help_text='Место, в котором необходимо выполнять привычку',
-        **NULLABLE,
     )
     habit_time = models.TimeField(
-        auto_now=True,
         verbose_name='Время',
         help_text='Время, когда необходимо выполнять привычку',
     )
@@ -61,7 +59,7 @@ class Habit(models.Model):
 
     def clean(self):
         super().clean()  # Вызови базовый clean(), если он есть
-        validator = HabitValidate()  # Создаём экземпляр валидатора
+        validator = HabitModelValidate()  # Создаём экземпляр валидатора
         validator(self)  # Передаём текущий объект для валидации
 
     class Meta:

@@ -3,7 +3,7 @@ from rest_framework.serializers import ValidationError
 
 class HabitValidate:
     """Проверка правильности заполнения полей привычки"""
-
+    """Для сериализатора"""
     def __init__(
             self,
             is_enjoyed_field='is_enjoyed',
@@ -46,3 +46,33 @@ class HabitValidate:
             if attrs[self.period_field] > 7:
                 message = 'Период выполнения привычки должен быть меньше 7 дней'
                 raise ValidationError(message)
+
+
+class HabitModelValidate:
+    """Проверка правильности заполнения полей привычки на уровне админки"""
+    """Для модели"""
+    def __call__(self, obj):
+        # Запрет одновременного выбора связанной привычки и указания вознаграждения
+        if obj.habit_link is not None and obj.prize is not None:
+            message = 'Нельзя выбрать одновременно и связанную привычку и вознаграждение'
+            raise ValidationError(message)
+
+        # В связанные привычки могут попадать только привычки с признаком приятной привычки.
+        if obj.habit_link and not obj.habit_link.is_enjoyed:
+            message = 'Связанной привычкой можно назначить только приятную привычку'
+            raise ValidationError(message)
+
+        # Время выполнения должно быть не больше 120 секунд.
+        if obj.lead_time > 120:
+            message = 'Время выполнения привычки должно быть меньше 2 минут (120 секунд)'
+            raise ValidationError(message)
+
+        # У приятной привычки не может быть вознаграждения или связанной привычки.
+        if obj.is_enjoyed and (obj.prize or obj.habit_link):
+            message = 'У приятной привычки не может быть вознаграждения или связанной привычки'
+            raise ValidationError(message)
+
+        # Нельзя выполнять привычку реже, чем 1 раз в 7 дней.
+        if obj.period > 7:
+            message = 'Период выполнения привычки должен быть меньше 7 дней'
+            raise ValidationError(message)
