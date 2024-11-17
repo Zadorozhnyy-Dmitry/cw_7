@@ -1,6 +1,7 @@
 from django.db import models
 
 from config.settings import AUTH_USER_MODEL, NULLABLE
+from habits.validators import HabitValidate
 
 
 class Habit(models.Model):
@@ -57,6 +58,11 @@ class Habit(models.Model):
 
     def __str__(self):
         return f'{self.owner} - {self.action} в {self.habit_time} в {self.place}'
+
+    def clean(self):
+        super().clean()  # Вызови базовый clean(), если он есть
+        validator = HabitValidate()  # Создаём экземпляр валидатора
+        validator(self)  # Передаём текущий объект для валидации
 
     class Meta:
         verbose_name = 'Привычка'
