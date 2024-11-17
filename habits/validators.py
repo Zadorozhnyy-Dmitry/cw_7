@@ -19,23 +19,30 @@ class HabitValidate:
         self.lead_time_field = lead_time_field
 
     def __call__(self, attrs):
-        # Запрет одновременного выбора связанной привычки и указания вознаграждения.
-        if attrs[self.habit_link_field] is not None and attrs[self.prize_field] is not None:
+        # Запрет одновременного выбора связанной привычки и указания вознаграждения
+        if attrs.get(self.habit_link_field) is not None and attrs.get(self.prize_field) is not None:
             message = 'Нельзя выбрать одновременно и связанную привычку и вознаграждение'
             raise ValidationError(message)
+
+        # В связанные привычки могут попадать только привычки с признаком приятной привычки.
+        if attrs.get(self.habit_link_field) and not attrs[self.habit_link_field].is_enjoyed:
+            message = 'Связанной привычкой можно назначить только приятную привычку'
+            raise ValidationError(message)
+
         # Время выполнения должно быть не больше 120 секунд.
         if attrs[self.lead_time_field] > 120:
             message = 'Время выполнения привычки должно быть меньше 2 минут (120 секунд)'
             raise ValidationError(message)
-        # В связанные привычки могут попадать только привычки с признаком приятной привычки.
-        if attrs[self.habit_link_field] and not attrs[self.habit_link_field].is_enjoyed:
-            message = 'Связанной привычкой можно назначить только приятную привычку'
-            raise ValidationError(message)
+
         # У приятной привычки не может быть вознаграждения или связанной привычки.
-        if attrs[self.is_enjoyed_field] and (attrs[self.prize_field] or attrs[self.habit_link_field]):
+        if attrs.get(self.is_enjoyed_field) and (attrs.get(self.prize_field) or attrs.get(self.habit_link_field)):
             message = 'У приятной привычки не может быть вознаграждения или связанной привычки'
             raise ValidationError(message)
-        # # Нельзя выполнять привычку реже, чем 1 раз в 7 дней.
-        if attrs[self.period_field] > 7:
-            message = 'Период выполнения привычки должен быть меньше 7 дней'
-            raise ValidationError(message)
+
+        # Нельзя выполнять привычку реже, чем 1 раз в 7 дней.
+        # Проверка, что поле period передается
+        if attrs.get(self.period_field):
+            # Проверка значения поля
+            if attrs[self.period_field] > 7:
+                message = 'Период выполнения привычки должен быть меньше 7 дней'
+                raise ValidationError(message)

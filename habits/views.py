@@ -1,6 +1,7 @@
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 
 from habits.models import Habit
+from habits.paginations import CustomPagination
 from habits.serializers import HabitSerializer
 
 
@@ -8,12 +9,14 @@ class HabitListAPIView(ListAPIView):
     """Контроллер вывода списка привычек"""
     serializer_class = HabitSerializer
     queryset = Habit.objects.all()
+    pagination_class = CustomPagination
 
 
 class HabitPublishedListAPIView(ListAPIView):
     """Контроллер вывода списка публичных привычек"""
     serializer_class = HabitSerializer
     queryset = Habit.objects.filter(is_published=True)
+    pagination_class = CustomPagination
 
 
 class HabitCreateAPIView(CreateAPIView):
