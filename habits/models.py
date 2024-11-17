@@ -5,7 +5,7 @@ from config.settings import AUTH_USER_MODEL, NULLABLE
 
 class Habit(models.Model):
     """Модель привычки"""
-    owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Создатель привычки', )
+    owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Создатель привычки', **NULLABLE)
     place = models.CharField(
         max_length=150,
         verbose_name='Место',

@@ -132,11 +132,14 @@ REST_FRAMEWORK = {
 
     # Настройки JWT-токенов
     'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework_simplejwt.authentication.JWTAuthentication', ],
+
+    # Установка прав по умолчанию только с авторизацией
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated', ],
 }
 
 # Настройки срока действия токенов
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=20),
     'UPDATE_LAST_LOGIN': True,
     'AUTH_COOKIE_SECURE': False,

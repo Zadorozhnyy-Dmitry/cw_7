@@ -9,7 +9,8 @@ app_name = UsersConfig.name
 
 urlpatterns = [
     path("", UserListAPIView.as_view(), name="payment-list"),  # просмотр списка пользователей
-    path("register/", UserCreateAPIView.as_view(), name="users-register"),  # регистрация пользователя
+    # регистрация пользователя
+    path("register/", UserCreateAPIView.as_view(permission_classes=(AllowAny,)), name="users-register"),
 
     # эндпоинты для авторизации
     path("login/", TokenObtainPairView.as_view(permission_classes=(AllowAny,)), name="login", ),
