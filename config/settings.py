@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_filters',
     'django_celery_beat',
+    'drf_spectacular',
 
     'users',
     'habits',
@@ -136,6 +137,9 @@ REST_FRAMEWORK = {
 
     # Установка прав по умолчанию только с авторизацией
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated', ],
+
+    # Документация
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # Настройки срока действия токенов
@@ -150,3 +154,11 @@ SIMPLE_JWT = {
 TELEGRAM_URL = 'https://api.telegram.org/bot'
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+
+# Метаданные к проекту для документации
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Курсовая 7. DRF',
+    'DESCRIPTION': 'Бэкенд-часть SPA веб-приложения',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': True,
+}
