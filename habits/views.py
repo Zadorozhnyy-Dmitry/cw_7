@@ -5,7 +5,6 @@ from habits.models import Habit
 from habits.paginations import CustomPagination
 from habits.serializers import HabitSerializer
 from habits.permissions import IsOwner
-from django.utils import timezone
 
 
 class HabitListAPIView(ListAPIView):

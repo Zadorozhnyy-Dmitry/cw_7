@@ -129,7 +129,6 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-
 REST_FRAMEWORK = {
     # Настройки фильтрации
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
