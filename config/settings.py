@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
+    'django_celery_beat',
 
     'users',
     'habits',
@@ -118,12 +119,12 @@ CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
-# CELERY_BEAT_SCHEDULE = {
-#     "send_email_about_birthday": {
-#         "task": "lms.task.deactivate_users",
-#         "schedule": timedelta(days=1),  # run at every 1 day
-#     },
-# }
+CELERY_BEAT_SCHEDULE = {
+    "send_reminder_to_telegram": {
+        "task": "habits.tasks.send_reminder_to_telegram",
+        "schedule": timedelta(seconds=15),
+    },
+}
 
 
 REST_FRAMEWORK = {

@@ -5,6 +5,7 @@ from habits.models import Habit
 from habits.paginations import CustomPagination
 from habits.serializers import HabitSerializer
 from habits.permissions import IsOwner
+from django.utils import timezone
 
 
 class HabitListAPIView(ListAPIView):
@@ -39,7 +40,7 @@ class HabitCreateAPIView(CreateAPIView):
     queryset = Habit.objects.all()
 
     def perform_create(self, serializer):
-        """Автоматическая запись пользователя в атрибут owner"""
+        """Автоматическая запись пользователя в атрибут owner и даты начала привычки"""
         habit = serializer.save()
         habit.owner = self.request.user
         habit.save()

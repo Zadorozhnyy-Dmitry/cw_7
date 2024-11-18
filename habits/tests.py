@@ -53,6 +53,7 @@ class HabitViewTestCase(APITestCase):
             action='Съесть яблоко',
             is_enjoyed=True,
             lead_time=120,
+            habit_start=None,
         )
 
     def test_habit_retrieve(self):
@@ -109,6 +110,7 @@ class HabitViewTestCase(APITestCase):
                     'is_published': self.habit.is_published,
                     'owner': self.user.id,
                     'habit_link': self.habit.habit_link,
+                    'habit_start': self.habit.habit_start,
                 }
             ]
         }

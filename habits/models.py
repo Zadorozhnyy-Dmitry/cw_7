@@ -2,6 +2,7 @@ from django.db import models
 
 from config.settings import AUTH_USER_MODEL, NULLABLE
 from habits.validators import HabitModelValidate
+from django.utils import timezone
 
 
 class Habit(models.Model):
@@ -52,6 +53,12 @@ class Habit(models.Model):
         default=False,
         verbose_name='Признак публичности',
         help_text='Привычки можно публиковать в общий доступ',
+    )
+    habit_start = models.DateField(
+        default=timezone.now().date(),
+        verbose_name='Дата начала работы с привычкой',
+        help_text='Укажите дату начала вырабатывания привычки',
+        **NULLABLE,
     )
 
     def __str__(self):
