@@ -60,9 +60,14 @@ class Habit(models.Model):
         help_text='Укажите дату начала вырабатывания привычки',
         **NULLABLE,
     )
+    is_reminder_send = models.BooleanField(
+        default=False,
+        verbose_name='Флаг, что напоминание отправлено',
+        **NULLABLE,
+    )
 
     def __str__(self):
-        return f'{self.owner} - {self.action} в {self.habit_time} в {self.place}'
+        return f'{self.action} в {self.habit_time} в {self.place}'
 
     def clean(self):
         super().clean()  # Вызови базовый clean(), если он есть

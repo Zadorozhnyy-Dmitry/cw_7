@@ -146,3 +146,7 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_SECURE': False,
     'AUTH_COOKIE_SAMESITE': 'Lax'
 }
+
+TELEGRAM_URL = 'https://api.telegram.org/bot'
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')

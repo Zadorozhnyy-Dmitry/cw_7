@@ -111,6 +111,7 @@ class HabitViewTestCase(APITestCase):
                     'owner': self.user.id,
                     'habit_link': self.habit.habit_link,
                     'habit_start': self.habit.habit_start,
+                    'is_reminder_send': self.habit.is_reminder_send,
                 }
             ]
         }

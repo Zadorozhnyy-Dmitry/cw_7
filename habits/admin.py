@@ -14,4 +14,5 @@ class HabitAdmin(admin.ModelAdmin):
         'habit_link',
         'prize',
         'is_published',
+        'is_reminder_send',
     )
