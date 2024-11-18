@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
 app_name = UsersConfig.name
 
 urlpatterns = [
-    path("", UserListAPIView.as_view(), name="payment-list"),  # просмотр списка пользователей
+    path("", UserListAPIView.as_view(), name="users-list"),  # просмотр списка пользователей
     # регистрация пользователя
     path("register/", UserCreateAPIView.as_view(permission_classes=(AllowAny,)), name="users-register"),
 

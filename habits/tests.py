@@ -5,7 +5,7 @@ from habits.models import Habit
 from rest_framework import status
 
 from habits.serializers import HabitSerializer
-from habits.validators import HabitValidate
+from habits.validators import HabitValidate, HabitModelValidate
 from users.models import User
 
 
@@ -174,8 +174,8 @@ class HabitSerializerTestCase(APITestCase):
         self.assertIn('is_published', serializer.errors)
 
 
-class HabitValidaterTestCase(APITestCase):
-    """Тесты для валидаторов"""
+class HabitValidatorTestCase(APITestCase):
+    """Тесты для валидатора на уровне сериализатора"""
 
     def setUp(self):
         self.validator = HabitValidate()
@@ -213,6 +213,7 @@ class HabitValidaterTestCase(APITestCase):
 
     def test_only_habit_link(self):
         # Проверяем, что валидатор пропускает данные, если заполнено только одно поле.
+        # проверка валидатора при указании связанной привычки с признаком приятной привычки
         data = {
             'is_enjoyed': False,
             'habit_link': self.habit,
@@ -240,6 +241,7 @@ class HabitValidaterTestCase(APITestCase):
             self.fail(f'Validator raised exception unexpectedly: {e}')
 
     # В связанные привычки могут попадать только привычки с признаком приятной привычки.
+    # проверка валидатора при указании связанной привычки с признаком приятной привычки проводится выше
     def test_habit_link_with_no_enjoy(self):
         # проверка ошибки при указании связанной привычки без признака приятной привычки
         message = 'Связанной привычкой можно назначить только приятную привычку'
@@ -252,20 +254,6 @@ class HabitValidaterTestCase(APITestCase):
         }
         with self.assertRaisesMessage(Exception, message):
             self.validator(data)
-
-    def test_habit_link_with_is_enjoy(self):
-        # проверка валидатора при указании связанной привычки с признаком приятной привычки
-        data = {
-            'is_enjoyed': False,
-            'habit_link': self.habit,
-            'period': 3,
-            'prize': None,
-            'lead_time': 120,
-        }
-        try:
-            self.validator(data)
-        except Exception as e:
-            self.fail(f'Validator raised exception unexpectedly: {e}')
 
     # Время выполнения должно быть не больше 120 секунд.
     # Проверка валидатора при времени выполнения привычки менее 2 мин было выше
@@ -312,7 +300,7 @@ class HabitValidaterTestCase(APITestCase):
     def test_enjoy_habit(self):
         # проверка что валидатр пропускает приятную привычку без связанной и вознаграждения
         data = {
-            'is_enjoyed': False,
+            'is_enjoyed': True,
             'habit_link': None,
             'period': 3,
             'prize': None,
@@ -337,3 +325,201 @@ class HabitValidaterTestCase(APITestCase):
         }
         with self.assertRaisesMessage(Exception, message):
             self.validator(data)
+
+
+class HabitModelValidatorTestCase(APITestCase):
+    """Тесты для валидатора на уровне модели"""
+
+    def setUp(self):
+        self.validator = HabitModelValidate()
+        self.user = User.objects.create(email='testuser@test.test', password='test')
+        self.habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            habit_time='08:00:00',
+            action='Съесть яблоко',
+            is_enjoyed=True,
+            lead_time=120,
+        )
+        self.habit_no_enjoy = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            habit_time='08:00:00',
+            action='Съесть яблоко',
+            is_enjoyed=False,
+            lead_time=120,
+        )
+
+    # Запрет одновременного выбора связанной привычки и указания вознаграждения
+    def test_model_both_habit_link_and_prize(self):
+        # проверка ошибки при указании связанной привычки и вознаграждения
+        message = 'Нельзя выбрать одновременно и связанную привычку и вознаграждение'
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=False,
+            habit_link=self.habit,
+            period=3,
+            prize='you win!!!',
+            lead_time=120,
+        )
+        with self.assertRaisesMessage(Exception, message):
+            self.validator(habit)
+
+    def test_model_only_habit_link(self):
+        # Проверяем, что валидатор пропускает данные, если заполнено только одно поле.
+        # проверка валидатора при указании связанной привычки с признаком приятной привычки
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=False,
+            habit_link=self.habit,
+            period=3,
+            prize=None,
+            lead_time=120,
+        )
+        try:
+            self.validator(habit)
+        except Exception as e:
+            self.fail(f'Validator raised exception unexpectedly: {e}')
+
+    def test_model_only_prize(self):
+        # Проверяем, что валидатор пропускает данные, если заполнено только одно поле.
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=False,
+            habit_link=None,
+            period=3,
+            prize='you win!!!',
+            lead_time=120,
+        )
+        try:
+            self.validator(habit)
+        except Exception as e:
+            self.fail(f'Validator raised exception unexpectedly: {e}')
+
+    # В связанные привычки могут попадать только привычки с признаком приятной привычки.
+    # проверка валидатора при указании связанной привычки с признаком приятной привычки проводится выше
+    def test_model_habit_link_with_no_enjoy(self):
+        # проверка ошибки при указании связанной привычки без признака приятной привычки
+        message = 'Связанной привычкой можно назначить только приятную привычку'
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=False,
+            habit_link=self.habit_no_enjoy,
+            period=3,
+            prize=None,
+            lead_time=120,
+        )
+        with self.assertRaisesMessage(Exception, message):
+            self.validator(habit)
+
+    # Время выполнения должно быть не больше 120 секунд.
+    # Проверка валидатора при времени выполнения привычки менее 2 мин было выше
+    def test_model_habit_lead_time_above_120(self):
+        # проверка ошибки при времени выполнения привычки более 2 мин
+        message = 'Время выполнения привычки должно быть меньше 2 минут (120 секунд)'
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=False,
+            habit_link=None,
+            period=3,
+            prize=None,
+            lead_time=200,
+        )
+        with self.assertRaisesMessage(Exception, message):
+            self.validator(habit)
+
+    # У приятной привычки не может быть вознаграждения или связанной привычки.
+    def test_model_enjoy_habit_with_habit_link(self):
+        # проверка ошибки указания связанной привычки для приятной привычки
+        message = 'У приятной привычки не может быть вознаграждения или связанной привычки'
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=True,
+            habit_link=self.habit,
+            period=3,
+            prize=None,
+            lead_time=120,
+        )
+        with self.assertRaisesMessage(Exception, message):
+            self.validator(habit)
+
+    def test_model_enjoy_habit_with_prize(self):
+        # проверка ошибки указания вознаграждения для приятной привычки
+        message = 'У приятной привычки не может быть вознаграждения или связанной привычки'
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=True,
+            habit_link=None,
+            period=3,
+            prize="you win!!!",
+            lead_time=120,
+        )
+        with self.assertRaisesMessage(Exception, message):
+            self.validator(habit)
+
+    def test_model_enjoy_habit(self):
+        # проверка что валидатр пропускает приятную привычку без связанной и вознаграждения
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=True,
+            habit_link=None,
+            period=3,
+            prize=None,
+            lead_time=120,
+        )
+        try:
+            self.validator(habit)
+        except Exception as e:
+            self.fail(f'Validator raised exception unexpectedly: {e}')
+
+    # Нельзя выполнять привычку реже, чем 1 раз в 7 дней.
+    # Проверка валидатора для периода выполнения привычки менее 7 дней было выше
+    def test_habit_period(self):
+        # проверка ошибки указания периода выполнения привычки
+        message = 'Период выполнения привычки должен быть меньше 7 дней'
+        habit = Habit.objects.create(
+            owner=self.user,
+            place='Home',
+            action='Съесть яблоко',
+            habit_time='08:00:00',
+
+            is_enjoyed=False,
+            habit_link=None,
+            period=8,
+            prize=None,
+            lead_time=120,
+        )
+        with self.assertRaisesMessage(Exception, message):
+            self.validator(habit)
